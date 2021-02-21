@@ -454,24 +454,3 @@ unite_date <- dates %>%
   unite(Date, Month, Day, Year, sep = "-")
 unite_date
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
