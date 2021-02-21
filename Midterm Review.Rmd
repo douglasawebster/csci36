@@ -1,0 +1,477 @@
+---
+title: "Midterm Review"
+author: "CSCI 36: Foundations of Data Science"
+date: "2/22/2021"
+output:
+  html_document:
+    css: midterm-review-style.css
+  pdf_document: default
+---
+
+```{r setup, include=FALSE, warning=FALSE, message=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, echo=FALSE, results='hide'}
+library("tidyverse")
+library("nycflights13")
+```
+
+**Knit me to html for best results!!!**
+
+### Useful Resources (Click Me!!!)
+
+##### Textbook
+- [Foundations of Data Science](https://piazza.com/class_profile/get_resource/kk4x4g7te674nc/kk8xkp4od685jm)
+
+##### Homework Solutions
+- [Homework 1 Solutions](https://piazza.com/class_profile/get_resource/kk4x4g7te674nc/klabgv35he945y)
+- [Homework 2 Solutions](https://piazza.com/class_profile/get_resource/kk4x4g7te674nc/klabh4im9av4h8)
+- [Homework 3 Solutions](https://piazza.com/class_profile/get_resource/kk4x4g7te674nc/klabhdck3ze4sf)
+- [Homework 4 Solutions](https://piazza.com/class_profile/get_resource/kk4x4g7te674nc/kldwfuzwn9k93)
+
+##### Lectures
+- [Lecture 1: Introduction](https://www.youtube.com/watch?v=bj3jZHc7aO4&feature=youtu.be)
+- [Lecture 2: Tidyverse and Select](https://www.youtube.com/watch?v=dYtSLu40D9U&feature=youtu.be)
+- [Lecture 3: Filter, Arrange, and Mutate](https://www.youtube.com/watch?v=RwlZUsPZVT4&feature=youtu.be)
+- [Lecture 4: Group-by and Aggregation Functions](https://www.youtube.com/watch?v=SIXv30cobHU&feature=youtu.be)
+- [Lecture 5: Group-by and Summarise](https://www.youtube.com/watch?v=DLpWHBjiEJw&feature=youtu.be)
+- [Lecture 6: Tidy Data](https://www.youtube.com/watch?v=qrY-7rvwAuY&feature=youtu.be)
+- [Lecture 7: Data Types](https://www.youtube.com/watch?v=WVAWzKLRMkc&feature=youtu.be)
+- [Lecture 8: Midterm Review](https://www.youtube.com/watch?v=i8DrZQn0hJo&feature=youtu.be)
+
+### **Aggregation Functions**
+[For more information click here!](https://www.guru99.com/r-aggregate-function.html#3)
+```{r, results='hide'}
+x <- c(1,2,3)
+mean(x)        # Average of vector
+median(x)      # Median of vector
+sum(x)         # Sum of vector
+sd(x)          # Standard deviation of vector
+IQR(x)         # Interquartile range of vector
+min(x)         # Minimum of vector
+max(x)         # Maximum of vector
+quantile(x)    # Quantile of vector
+first(x)       # First observation of the group
+last(x)        # Last observation of the group
+nth(x,1)       # nth observation of the group
+# n()          # Count the number of rows
+n_distinct(x)  # Count the number of distinct observations
+```
+
+### **Select**
+Select (and optionally rename) variables in a data frame by referring to them by name.
+
+##### **Constructor**
+- `select(.data, ...)`
+
+##### **Arguments**
+- `.data`: A data frame.
+- `...`: Specification of the desired column(s).  One or more unquoted expressions separated by commas.  Variable names can be used as if they were positions in the data frame, so expressions like x:y canbe used to select a range of variables.
+
+##### **Helpers**
+- `:` for selecting a range of consecutive variables
+- `!/-` for taking the complement of a set of variables
+- `&` for selecting the intersection of two sets of variables
+- `|` for selecting the union of two sets of variables
+- `c()` for combining selections
+- `everything()` Matches all variables
+- `last_col()` Select last variable, possibly with an offset
+- `starts_with()` Starts with a prefix
+- `ends_with()` Ends with a suffix
+- `contains()` Contains a literal string
+- `matches()` Matches a regular expression
+- `num_range()` Matches a numerical range
+- `all_of()` Matches variable names in a character vector.  All names must be present, otherwise an out-of-bounds error is thrown
+- `any_of()` Same as all_of() except that no error is thrown for anmes that don't exist
+- `where()` Applies a function to all variables and selects those for which the function returns True
+
+##### **Examples**
+1. Select the carrier and tail number from the flights datas et
+```{r, results='hide'}
+planes <- select(flights, carrier, tailnum)
+planes
+```
+
+2. Select all variables except the year from the flights data set
+```{r, results='hide'}
+not_year1 <- select(flights, -year)
+not_year2 <- select(flights, !year)
+not_year1
+```
+
+3. Select all variable ending with the word "time" from the flights data set
+```{r, results='hide'}
+time_variables <- select(flights, ends_with("time"))
+time_variables
+```
+
+4. Select the first 9 variables from the flights data set
+```{r, results='hide'}
+first_nine <- select(flights, 1:9)
+first_nine
+```
+
+
+### **Filter**
+Used to subset a data frame, retaining rows that satisfied all conditions (i.e. evaluating to True). Can be applied to both grouped and un-grouped data.
+
+##### **Constructor**
+- `filter(.data, ..., .preserve = T/F)`
+
+##### **Arguments**
+- `.data`: A data frame.
+- `...`: Expressions that return a logical value (i.e. True or False) and are defined in terms of variables in `.data`.  If multiple expressions are included, they are combined with the `&` operator.
+- `.preserve`: Relevant when the `.data` input is grouped.  If `.preserve = False` (the default), the grouping structure is recalculated based on the resulting data, otherwise the grouping is kept as is. 
+
+##### **Helpers**
+- `==`, `!=`, `>`, `<`, `>=`, `<=`
+- `&`, `|`, `xor()`, `!`
+- `is.na()`
+- `between()`, `near()`
+- `abs()`
+
+##### **Examples**
+1. Filter for all flights with arrival delay of two or more hours from the flights data set
+```{r, results='hide'}
+arrival_delay <- filter(flights, arr_delay >= 120)
+arrival_delay
+```
+
+2. Filter for all flights that flew to Houston (airport codes "IAH" or "HOU") from the flights data set
+```{r results='hide'}
+to_houston <- filter(flights, dest == "IAH" | dest == "HOU")
+to_houston
+```
+
+3. Filter for all flights that departed from JFK in July from the flights data set
+```{r, results='hide'}
+JFK_July1 <- filter(flights, origin == "JFK" & month == 7)
+JFK_July2 <- filter(flights, origin == "JFK", month == 7)
+JFK_July1
+```
+
+4. Filter for all flights that left between 0 and 60 minutes late from the flights data set
+```{r results='hide'}
+late <- filter(flights, between(dep_delay, 0, 60))
+late
+```
+
+5. Filter for all flights that do not have missing departure times from the flights data set
+```{r results='hide'}
+flights_with_dep_time <- filter(flights, !is.na(dep_time))
+flights_with_dep_time
+```
+
+### **Arrange**
+Orders the rows of a data frame by the values of selected columns. NA values are always put at the end.
+
+##### **Constructor**
+- `arrange(.data, ..., .by_group = T/F)`
+
+##### **Arguments**
+- `.data`: A data frame.
+- `...`: Variables or functions (Note: use `desc()` to sort a variable in descending order).
+- `.by_group`: If True, will sort by grouping variable.
+
+##### **Helpers**
+- `desc()` arrange in ascending order
+- `abs()`
+
+##### **Examples**
+1. Arrange the flights data set so that the flights that departed closest to their scheduled departure time are first
+```{r, results='hide'}
+most_on_time <- arrange(flights, abs(dep_delay))
+most_on_time
+```
+
+2. Arrange the flights data set from longest to shortest arrival delay
+```{r, results='hide'}
+latest_arrival <- arrange(flights, desc(arr_delay))
+latest_arrival
+```
+
+### **Mutate**
+Adds new variables and preserves existing one. New variables overwrite existing variables of the same name.
+
+##### **Constructor**
+- `mutate(.data, ...)`
+
+##### **Arguments**
+- `.data`: A data frame.
+- `...`: Name-value pairs.  The name gives the name of the column in the output.  The value can be: a vector of length 1, a vector the same length as the current group, null, or a data frame or tibble.
+
+##### **Helpers**
+- `+`, `-`, `*`. `/`
+- `log()`
+- `==`, `!=`, `>`, `<`, `>=`, `<=`    For logical results
+- `&`, `|`, `xor()`, `!`              For logical results
+
+##### **Examples**
+1. Use mutate to convert the distance variable, in the flights data set, from miles to feet 
+```{r results='hide'}
+flights_with_feet <- mutate(flights, distance = distance * 5280)
+flights_with_feet
+```
+
+2. Use mutate to add a variable "speed" to the "flights" table that gives the average flight speed, in mph
+```{r results='hide'}
+flights_with_speed <- mutate(flights, speed = distance / (air_time/60))
+flights_with_speed
+```
+
+3. Use mutate to add a variable "early" which is True if the flight arrived early and False if it arrived on time or late
+```{r results='hide'}
+early_flights <- mutate(flights, early = arr_delay < 0)
+early_flights
+```
+
+### **Group By**
+Takes an existing table and converts it into a grouped table where operations are performed "by group"
+
+##### **Constructor**
+- `group_by(.data, ..., .add)`
+
+##### **Arguments**
+- `.data`: A data frame.
+- `...`: Variables or computations to group by
+- `.add`: When False, the default, group_by() will override existing groups. To add to existing groups, use .add = True
+
+##### **Examples**
+1. Use group_by to determine if all characters from a given homeworld all have brown eyes from the starwars data set.
+```{r, results='hide'}
+brown <- starwars %>%
+  group_by(homeworld) %>%
+  summarise(all_brown = all(eye_color == "brown"), number = sum(eye_color == "brown"))
+brown
+```
+
+2. Use group-by to determine the most common eye colors among star wars characters from the starwars data set.
+```{r, results='hide'}
+eyes <- starwars %>%
+  group_by(eye_color) %>%
+  summarise(number = n())
+eyes
+```
+
+### **Ungroup**
+Takes an existing table with groups and removes grouping
+
+##### **Constructor** 
+- `ungroup(x, ...)`
+
+##### **Arguments**
+- `x`: A tibble
+- `...`: Variables to remove from grouping
+
+##### **Examples**
+1. Use group_by to group the data by eye color and then use un-group to get back the original data from the starwars data set.
+```{r, results='hide'}
+ungroup_eyes <- starwars %>%
+  group_by(eye_color) %>%
+  ungroup(eye_color)
+ungroup_eyes
+```
+
+### **Summarise**
+Creates a new data frame.  It will have one (or more) rows for each combination of grouping variables; if there are no grouping variables, the output will have a single row summarizing all observations in the input.  It will contain one column for each grouping variable and one column for each of the summary statistics that you have specified.
+
+##### **Constructor**
+- `summarise(.data, ...)`
+
+##### **Arguments**
+- `.data`: A data frame.
+- `...`: Name-value pairs of summary functions.  The name will be the name of the variable in the result.  The value can be a vector of length 1, a vector of length n, or a data frame
+
+##### **Helpers**
+- `mean()`, `median()`            Center
+- `sd()`, `IQR()`, `mad()`        Spread
+- `min()`, `max()`, `quartile()`  Range
+- `first()`, `last()`, `nth()`    Position
+- `n()`, `n_distinct()`           Count
+- `any()`, `all()`                Logical
+
+##### **Examples**
+1. Use the summarize function to calculate the minimum and maximum mass among all characters of the same sex from the starwars data set.
+```{r, results='hide'}
+sex_mass <- starwars %>%
+  group_by(sex) %>%
+  summarise(min_mass = min(mass, na.rm = TRUE), max_mass = max(mass, na.rm = TRUE))
+sex_mass
+```
+
+2. Use the summarize function to calculate the average heights of the three shortest character form each homeworld in the starwars data set.
+```{r, results='hide'}
+shortest_3_avg <- starwars %>%
+  group_by(homeworld) %>%
+  filter(n() >= 3, rank(height) <= 3) %>%
+  summarise(avg = sum(height) / 3)
+shortest_3_avg
+```
+
+### **Pivot Wider**
+"Widens" the data, increasing the number of columns and decreasing the number of rows
+
+##### **Constructor**
+- `pivot_wider(
+  data,
+  id_cols = NULL,
+  names_from = name,
+  names_prefix = "",
+  names_sep = "_",
+  names_glue = NULL,
+  names_sort = FALSE,
+  names_repair = "check_unique",
+  values_from = value,
+  values_fill = NULL,
+  values_fn = NULL,
+  ...
+)`
+
+##### **Arguments**
+- `data`: A data frame to pivot.
+- `names_from`, `values_from`: A pair of arguments describing which column (or columns) to get the name of the output column (`names_from`), and which column (or columns) to get the cell values from (`values_from`)
+
+##### **Examples**
+1. Use pivot wider to 
+```{r, results='hide'}
+us_rent_income
+tidy_rent <- us_rent_income %>%
+  select(-GEOID, -moe) %>%
+  pivot_wider(names_from = variable, values_from = estimate)
+tidy_rent
+```
+
+
+### **Pivot Longer**
+"Lengthens" the data, increasing the number of rows and decreasing the number of columns.
+
+##### **Constructor**
+- `pivot_longer(
+  data,
+  cols,
+  names_to = "name",
+  names_prefix = NULL,
+  names_sep = NULL,
+  names_pattern = NULL,
+  names_ptypes = list(),
+  names_transform = list(),
+  names_repair = "check_unique",
+  values_to = "value",
+  values_drop_na = FALSE,
+  values_ptypes = list(),
+  values_transform = list(),
+  ...
+)`
+
+##### **Arguments**
+- `data`: A data frame to pivot
+- `cols`: Columns to pivot into longer format
+- `names_to`: A string specifying the name of the column to create from the data stored in the column names of `data`.
+- `values_to`: A string specifying the name of the column to create from the data stored in cell values.
+
+##### **Examples**
+1. Use pivot longer to consolidate the multiple month columns into a single month column.
+```{r, results='hide'}
+rainfall <- read_csv2('City;January;February;March
+  Atlanta, Georgia;11;10;10
+  Austin, Texas;7;7;9
+  Baltimore, Maryland;10;9;10
+  Birmingham, Alabama;11;10;10
+  Boston, Massachusetts;11;10;12')
+rainfall
+
+month_column <- rainfall %>%
+  pivot_longer(cols = c("January", "February", "March"), names_to = "Month", values_to = "Rainfall")
+month_column
+```
+
+### **Separate**
+Given either a regular expression or a vector of character positions, `separate()` turns a single character column into multiple columns.
+
+##### **Constructor**
+- `separate(
+  data,
+  col,
+  into,
+  sep = "[^[:alnum:]]+",
+  remove = TRUE,
+  convert = FALSE,
+  extra = "warn",
+  fill = "warn",
+  ...
+)`
+
+##### **Arguments**
+- `data`: A data frame.
+- `col`: Column name or position.
+- `into`: Names of new variables to create as character vector.
+- `sep`: Separator between columns. If character, `sep` is interpreted as a regular expression.  The default values is a regular expression that matches any sequence of non-alphanumeric values.  If numeric, `sep` is interpreted as character positions to split at. Positive values start at 1 at the far-left of the string; negative values start at -1 at the far-right of the string
+
+##### **Examples**
+1. Use separate to split up the City column into city and state columns.
+```{r, results='hide', warning=FALSE, message=FALSE}
+rainfall <- read_csv2('City;January;February;March
+  Atlanta, Georgia;11;10;10
+  Austin, Texas;7;7;9
+  Baltimore, Maryland;10;9;10
+  Birmingham, Alabama;11;10;10
+  Boston, Massachusetts;11;10;12')
+rainfall
+
+separate_rainfall <- rainfall %>%
+  separate(col = "City", into = c("City", "State"), sep = ",")
+separate_rainfall
+```
+
+### **Unite**
+Convenience function to paste together multiple columns into one
+
+##### **Constructor** 
+- `unite(data, col, ..., sep = "_", remove = TRUE, na.rm = FALSE)`
+
+##### **Arguments**
+- `data`: A data frame.
+- `col`: The name of the new column, as a string or symbol.
+- `...`: Columns to unite.
+- `sep`: Separator to use between values.
+- `remove`: If True, remove input columns form output data frame.
+- `na.rm`: If True, missing values will be removed prior to uniting each value
+
+##### **Examples**
+1. Use unite to combine the month, day, and year columns into a date column.
+```{r, results='hide', warning=FALSE, message=FALSE}
+dates <- read_csv2('Month;Day;Year
+  3;2;2001
+  4;7;2003
+  6;15;2004
+  9;30;2007
+  8;1;2015'
+)
+dates
+
+unite_date <- dates %>%
+  unite(Date, Month, Day, Year, sep = "-")
+unite_date
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
