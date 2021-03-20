@@ -17,10 +17,6 @@ library("tidyverse")
 library("nycflights13")
 ```
 
-**Knit me to html for best results!!!**
-
-### Useful Resources (Click Me!!!)
-
 ##### Textbook
 - [Foundations of Data Science](https://piazza.com/class_profile/get_resource/kk4x4g7te674nc/kk8xkp4od685jm)
 
@@ -29,6 +25,7 @@ library("nycflights13")
 - [Homework 2 Solutions](https://piazza.com/class_profile/get_resource/kk4x4g7te674nc/klabh4im9av4h8)
 - [Homework 3 Solutions](https://piazza.com/class_profile/get_resource/kk4x4g7te674nc/klabhdck3ze4sf)
 - [Homework 4 Solutions](https://piazza.com/class_profile/get_resource/kk4x4g7te674nc/kldwfuzwn9k93)
+- [Homework 5 Solutions](https://piazza.com/class_profile/get_resource/kk4x4g7te674nc/kmchbzy1lhb39g)
 
 ##### Lectures
 - [Lecture 1: Introduction](https://www.youtube.com/watch?v=bj3jZHc7aO4&feature=youtu.be)
@@ -39,6 +36,11 @@ library("nycflights13")
 - [Lecture 6: Tidy Data](https://www.youtube.com/watch?v=qrY-7rvwAuY&feature=youtu.be)
 - [Lecture 7: Data Types](https://www.youtube.com/watch?v=WVAWzKLRMkc&feature=youtu.be)
 - [Lecture 8: Midterm Review](https://www.youtube.com/watch?v=i8DrZQn0hJo&feature=youtu.be)
+- [Lecture 9: Mutating Joins](https://www.youtube.com/watch?v=es2X_NrLBfU)
+- [Lecture 10: Filtering Joins](https://www.youtube.com/watch?v=KiBR8UA2pTg)
+- [Lecture 11: String Operations](https://www.youtube.com/watch?v=TTjbAzUOsns)
+- [Lecture 12: Regular Expressions](https://www.youtube.com/watch?v=omLzEltDG_A)
+- [Lecture 13: Factors](https://www.youtube.com/watch?v=nbaNQpybH9M)
 
 ### **Aggregation Functions**
 [For more information click here!](https://www.guru99.com/r-aggregate-function.html#3)
@@ -67,7 +69,7 @@ Select (and optionally rename) variables in a data frame by referring to them by
 
 ##### **Arguments**
 - `.data`: A data frame.
-- `...`: Specification of the desired column(s).  One or more unquoted expressions separated by commas.  Variable names can be used as if they were positions in the data frame, so expressions like x:y canbe used to select a range of variables.
+- `...`: Specification of the desired column(s).  One or more unquoted expressions separated by commas.  Variable names can be used as if they were positions in the data frame, so expressions like x:y can be used to select a range of variables.
 
 ##### **Helpers**
 - `:` for selecting a range of consecutive variables
@@ -453,4 +455,180 @@ dates
 unite_date <- dates %>%
   unite(Date, Month, Day, Year, sep = "-")
 unite_date
+```
+
+### **Count**
+Quickly count the unique values of one or more variables (Roughly equivalent to group_by(x) and summarise(n()))
+
+##### **Constructor**
+- `count(data, ..., wt = NULL, sort = FALSE, name = NULL)`
+
+##### **Arguments**
+- `data`: A data frame.
+- `...`: Variables to group by.
+- `wt`: Frequency weights. If NULL, counts the number of rows in each group.  If a variable, computes sum(wt) for each group.
+- `sort`: If TRUE, will show the largest groups at the top.
+- `name`: The name of the new column in the output.
+
+##### **Examples**
+```{r, results='hide'}
+#plane_model_count <- planes %>%
+#  count(model, year)
+#plane_model_count
+```
+
+### **Mutating Joins**
+Mutating joins add columns from y to x, matching rows base on the a key.
+
+##### **Constructor**
+- `inner_join(x, y, by=NULL)`: Includes all rows in x and y
+- `left_join(x, y, by=NULL)`: Includes all rows in x
+- `right_join(x, y, by=NULL)`: Includes all rows in y
+- `full_join(x, y, by=NULL)`: Includes all rows in x or y
+
+##### **Arguments**
+- `x`: A data frame.
+- `y`: A data frame.
+- `by`: The key to join the tables by
+
+##### **Examples**
+```{r, results='hide'}
+player_band_and_instrument <- inner_join(band_members, band_instruments, by=c("name"))
+player_band_and_instrument
+```
+
+```{r, results='hide'}
+player_band <- left_join(band_members, band_instruments, by=c("name"))
+player_band
+```
+
+```{r, results='hide'}
+player_instrument <- right_join(band_members, band_instruments, by=c("name"))
+player_instrument
+```
+
+```{r, results='hide'}
+player_band_or_instrument <- full_join(band_members, band_instruments, by=c("name"))
+player_band_or_instrument
+```
+
+### **Filtering Joins**
+Filtering joins filter rows from x based on the presence or absence of matches in y.
+
+##### **Constructor**
+- `semi_join(x, y, by=NULL)` return all rows from x with a match in y
+- `anti_join(x, y, by=NULL)` return all rows from x without a match in y
+
+##### **Arguments**
+- `x`: A data frame.
+- `y`: A data frame.
+- `by`: The key to filter and join the tables by
+
+##### **Examples**
+```{r, results='hide'}
+semi_join(band_members, band_instruments, by="name")
+```
+
+```{r, results='hide'}
+anti_join(band_members, band_instruments, by="name")
+```
+
+### Set Operations
+Union, intersect, difference, and equality for two vectors representing sets.
+
+##### **Constructor**
+- `intersect(x, y, ...)`
+- `union(x, y, ...)`
+- `setdiff(x, y, ...)`
+- `setequal(x, y, ...)`
+- `is.element(el, set, ...)`
+
+##### **Arguments**
+- `x`: A data frame.
+- `y`: A data frame.
+
+##### **Examples**
+```{r, results='hide'}
+first_five <- flights %>% slice(1:5)
+first_five
+
+five_more <- flights %>% slice(3:7)
+five_more
+```
+
+```{r, results='hide'}
+intersection <- intersect(first_five, five_more)
+intersection
+```
+
+```{r, results='hide'}
+union <- union(first_five, five_more)
+union
+```
+
+```{r, results='hide'}
+difference <- setdiff(first_five, five_more)
+difference
+```
+
+### **Regular Expressions**
+[For more information click here!](https://piazza.com/class_profile/get_resource/kk4x4g7te674nc/kltpz0q4ckp1uk)
+
+### **String Operations**
+
+##### **Constructor**
+- `str_length(string)`
+- `str_to_upper(string)`
+- `str_to_lower(string)`
+- `str_to_title(string)`
+- `str_detect(string, pattern, negate=FALSE)`
+- `str_extract(string, pattern)`
+- `str_extract_all(string, pattern, simplify=FALSE)`
+- `str_replace(string, pattern, replacement)`
+
+##### **Arguments**
+- `string`: Input vector. Either a character vector, or something coercible to one.
+- `pattern`: Pattern to look for. The default interpretation is a regular expression.
+- `replacement`: A character vector of replacements. Should be either length one, or the same length as string or pattern. References of the form `\1`, `\2`, etc will be replaced with the contents of the respective matched group (created by ()).
+- `negate`: If TRUE, return non-matching elements.
+
+##### **Examples**
+```{r, results='hide'}
+length = str_length("This string has a length of 30")
+length
+```
+
+```{r, results='hide'}
+uppercase <- str_to_upper("UpperCase")
+uppercase
+```
+
+```{r, results='hide'}
+lowercase <- str_to_lower("LowerCase")
+lowercase
+```
+
+```{r, results='hide'}
+title <- str_to_title("TitleCase")
+title
+```
+
+```{r, results='hide'}
+detected <- c("David Bachman", "David Moore", "Andre Wakefield", "Mark Huber") %>% str_detect("David")
+detected
+```
+
+```{r, results='hide'}
+extract <- c("David Bachman", "David Moore", "Andre Wakefield", "Mark Huber") %>% str_extract("David")
+extract
+```
+
+```{r, results='hide'}
+extract_all <- "David Bachman"%>% str_extract_all("[aeiou]")
+extract_all
+```
+
+```{r, results='hide'}
+replace <- "apple"%>% str_replace("([a-z])([a-z]+)", "\\2\\1ay")
+replace
 ```
